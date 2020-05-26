@@ -7,14 +7,15 @@ public class JwtResponse implements Serializable {
     private static final long serialVersionUID = -8091879091924046844L;
     private final String jwttoken;
 
-    public Boolean isTokenValid() {
+    public boolean isTokenValid() {
         return tokenValid;
     }
 
-    private Boolean tokenValid;
+    private boolean tokenValid;
 
-    public JwtResponse(String jwttoken, Boolean tokenValid) {
+    public JwtResponse(String jwttoken, boolean tokenValid) {
         this.jwttoken = jwttoken;
+        this.tokenValid = tokenValid;
     }
 
     public String getToken() {

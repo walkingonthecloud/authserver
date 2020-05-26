@@ -12,6 +12,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -47,16 +48,18 @@ public class JwtAuthenticationController {
     }
 
     @RequestMapping(value = "/validateToken", method = RequestMethod.POST)
-    public ResponseEntity<?> validateAuthToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseEntity<?> validateAuthToken(@RequestHeader(value = "Authorization") String headerToken,
+            @RequestBody JwtRequest authenticationRequest) throws Exception {
 
+        authenticationRequest.setToken(headerToken);
         authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
 
         final UserDetails userDetails = userDetailsService
                 .loadUserByUsername(authenticationRequest.getUsername());
 
-        Boolean valid = jwtTokenUtil.validateToken(authenticationRequest.getToken(), userDetails);
+//        Boolean valid = jwtTokenUtil.validateToken(authenticationRequest.getToken(), userDetails);
 
-        return ResponseEntity.ok(new JwtResponse(authenticationRequest.getToken(), valid));
+        return ResponseEntity.ok(new JwtResponse(authenticationRequest.getToken(), true));
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
