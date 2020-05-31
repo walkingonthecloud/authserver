@@ -2,7 +2,10 @@ package com.pilogix.authserver.rest;
 
 import java.util.Objects;
 
+import com.netflix.discovery.converters.jackson.EurekaXmlJacksonCodec;
 import com.pilogix.authserver.model.UserDTO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,32 +37,46 @@ public class JwtAuthenticationController {
     @Autowired
     private JwtUserDetailsService userDetailsService;
 
+    private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
-    public ResponseEntity<?> createAuthenticationToken(@RequestBody JwtRequest authenticationRequest) throws Exception {
+    public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest request) {
 
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        JwtResponse response = JwtResponse.builder().username(request.getUsername())
+                .token(request.getToken()).build();
 
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-
-        final String token = jwtTokenUtil.generateToken(userDetails);
-
-        return ResponseEntity.ok(new JwtResponse(token, true));
+        try {
+            authenticate(request.getUsername(), request.getPassword());
+            final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
+            final String token = jwtTokenUtil.generateToken(userDetails);
+            response.setTokenValid(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Error while performing getToken() in AUTHSERVER.");
+            response.setErrorMessage("Error while performing getToken() in AUTHSERVER.");
+            response.setTokenValid(false);
+        }
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/validateToken", method = RequestMethod.POST)
     public ResponseEntity<?> validateAuthToken(@RequestHeader(value = "Authorization") String headerToken,
-            @RequestBody JwtRequest authenticationRequest) throws Exception {
+                                               @RequestBody JwtRequest request) {
 
-        authenticationRequest.setToken(headerToken);
-        authenticate(authenticationRequest.getUsername(), authenticationRequest.getPassword());
+        JwtResponse response = JwtResponse.builder().username(request.getUsername())
+                .token(request.getToken()).build();
 
-        final UserDetails userDetails = userDetailsService
-                .loadUserByUsername(authenticationRequest.getUsername());
-
-//        Boolean valid = jwtTokenUtil.validateToken(authenticationRequest.getToken(), userDetails);
-
-        return ResponseEntity.ok(new JwtResponse(authenticationRequest.getToken(), true));
+        try {
+            request.setToken(headerToken);
+            authenticate(request.getUsername(), request.getPassword());
+            response.setTokenValid(true);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.debug("Error while performing validateToken() in AUTHSERVER.");
+            response.setErrorMessage("Error while performing validateToken() in AUTHSERVER.");
+            response.setTokenValid(false);
+        }
+        return ResponseEntity.ok(response);
     }
 
     @RequestMapping(value = "/register", method = RequestMethod.POST)
