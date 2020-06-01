@@ -1,9 +1,10 @@
 package com.pilogix.authserver.rest;
 
-import java.util.Objects;
-
-import com.netflix.discovery.converters.jackson.EurekaXmlJacksonCodec;
+import com.pilogix.authserver.config.JwtTokenUtil;
+import com.pilogix.authserver.model.JwtRequest;
+import com.pilogix.authserver.model.JwtResponse;
 import com.pilogix.authserver.model.UserDTO;
+import com.pilogix.authserver.service.JwtUserDetailsService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,10 +20,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
-import com.pilogix.authserver.service.JwtUserDetailsService;
-import com.pilogix.authserver.config.JwtTokenUtil;
-import com.pilogix.authserver.model.JwtRequest;
-import com.pilogix.authserver.model.JwtResponse;
 
 @RestController
 @CrossOrigin

@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.annotation.sql.DataSourceDefinition;
 import java.io.Serializable;
 
 @Data

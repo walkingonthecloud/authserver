@@ -1,18 +1,16 @@
 package com.pilogix.authserver.service;
 
-import java.util.ArrayList;
-
+import com.pilogix.authserver.model.DAOUser;
+import com.pilogix.authserver.model.UserDTO;
+import com.pilogix.authserver.repo.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 
-import com.pilogix.authserver.repo.UserDao;
-import com.pilogix.authserver.model.DAOUser;
-import com.pilogix.authserver.model.UserDTO;
+import java.util.ArrayList;
 
 @Component
 public class JwtUserDetailsService implements UserDetailsService {
