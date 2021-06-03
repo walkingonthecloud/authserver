@@ -11,13 +11,13 @@ import javax.persistence.Table;
 
 @Entity
 @Table(name = "user")
-public class DAOUser {
+public class UserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column
+    @Column (unique = true)
     private String username;
 
     @Column

@@ -1,6 +1,6 @@
 package com.pilogix.authserver.model;
 
-public class UserDTO {
+public class UserDO {
 
     private String username;
     private String password;

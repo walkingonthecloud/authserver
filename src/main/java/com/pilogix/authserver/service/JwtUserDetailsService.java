@@ -1,8 +1,8 @@
 package com.pilogix.authserver.service;
 
-import com.pilogix.authserver.model.DAOUser;
-import com.pilogix.authserver.model.UserDTO;
-import com.pilogix.authserver.repo.UserDao;
+import com.pilogix.authserver.model.UserEntity;
+import com.pilogix.authserver.model.UserDO;
+import com.pilogix.authserver.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -16,7 +16,7 @@ import java.util.ArrayList;
 public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
-    private UserDao userDao;
+    private UserRepo userRepo;
 
     @Autowired
     private PasswordEncoder bcryptEncoder;
@@ -24,7 +24,7 @@ public class JwtUserDetailsService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-        DAOUser user = userDao.findByUsername(username);
+        UserEntity user = userRepo.findByUsername(username);
         if (user == null) {
             throw new UsernameNotFoundException("User not found with username: " + username);
         }
@@ -32,11 +32,11 @@ public class JwtUserDetailsService implements UserDetailsService {
                 new ArrayList<>());
     }
 
-    public DAOUser save(UserDTO user) {
-        DAOUser newUser = new DAOUser();
+    public UserEntity save(UserDO user) {
+        UserEntity newUser = new UserEntity();
         newUser.setUsername(user.getUsername());
         newUser.setPassword(bcryptEncoder.encode(user.getPassword()));
-        return userDao.save(newUser);
+        return userRepo.save(newUser);
     }
 
 }
