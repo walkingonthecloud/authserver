@@ -1,8 +1,12 @@
 package com.pilogix.authserver.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.pilogix.authserver.model.ApiError;
 import com.pilogix.authserver.service.JwtUserDetailsService;
 import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -34,39 +38,42 @@ public class JwtRequestFilter extends OncePerRequestFilter {
         String username = null;
         String jwtToken = null;
 
-        // JWT Token is in the form "Bearer token". Remove Bearer word and get
-        // only the Token
         if (requestTokenHeader != null && requestTokenHeader.startsWith("Bearer ")) {
             jwtToken = requestTokenHeader.substring(7);
             try {
                 username = jwtTokenUtil.getUsernameFromToken(jwtToken);
             } catch (IllegalArgumentException e) {
                 System.out.println("Unable to get JWT Token");
+                raiseException(request, response, "Authentication error: Invalid token or token expired.");
             } catch (ExpiredJwtException e) {
                 System.out.println("JWT Token has expired");
+                raiseException(request, response, "Authentication error: Invalid token or token expired.");
             }
         } else {
-            logger.warn("JWT Token does not begin with Bearer String");
+            raiseException(request, response, "Authentication error: Invalid token or invalid token format or token expired.");
         }
 
-        // Once we get the token validate it.
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             UserDetails userDetails = this.jwtUserDetailsService.loadUserByUsername(username);
 
-        // if token is valid configure Spring Security to manually set
-        // authentication
             if (jwtTokenUtil.validateToken(jwtToken, userDetails)) {
                 UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(
                         userDetails, null, userDetails.getAuthorities());
                 usernamePasswordAuthenticationToken
                         .setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-        // After setting the Authentication in the context, we specify
-        // that the current user is authenticated. So it passes the
-        // Spring Security Configurations successfully.
                 SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             }
         }
         chain.doFilter(request, response);
+    }
+
+    private void raiseException(HttpServletRequest request, HttpServletResponse response, String msg)
+            throws IOException, ServletException {
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+        ApiError apiError = new ApiError(HttpStatus.UNAUTHORIZED.toString(), msg, msg);
+        byte[] body = new ObjectMapper().writeValueAsBytes(apiError);
+        response.getOutputStream().write(body);
     }
 }
