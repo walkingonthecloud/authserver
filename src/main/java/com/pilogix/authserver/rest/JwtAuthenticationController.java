@@ -5,6 +5,7 @@ import com.pilogix.authserver.model.JwtRequest;
 import com.pilogix.authserver.model.JwtResponse;
 import com.pilogix.authserver.model.UserDO;
 import com.pilogix.authserver.service.JwtUserDetailsService;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @CrossOrigin
 @RequestMapping(value = "/auth")
+@Slf4j
 public class JwtAuthenticationController {
 
     @Autowired
@@ -35,6 +37,7 @@ public class JwtAuthenticationController {
     @RequestMapping(value = "/getToken", method = RequestMethod.POST)
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest request) {
 
+        log.info(">> createAuthenticationToken");
         JwtResponse response = JwtResponse.builder().username(request.getUsername())
                 .token(request.getToken()).build();
 
@@ -49,6 +52,7 @@ public class JwtAuthenticationController {
             response.setErrorMessage("Error while performing getToken() in AUTHSERVER.");
             response.setTokenValid(false);
         }
+        log.info("<< createAuthenticationToken");
         return ResponseEntity.ok(response);
     }
 

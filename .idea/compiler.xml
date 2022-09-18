@@ -10,7 +10,7 @@
         <module name="authserver" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
+    <bytecodeTargetLevel target="8">
       <module name="authserver" target="1.8" />
     </bytecodeTargetLevel>
   </component>
