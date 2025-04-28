@@ -7,8 +7,8 @@ import org.springframework.stereotype.Service;
 
 /**
  * Custom password encoder that uses SHA-256 hashing algorithm.
- * (with no salt! BCrypt encoder uses salt and inappropriate for our current use case)
- * 
+ * (with _no_ salt! BCrypt encoder uses salt and inappropriate for our current use case)
+ *
  * This class implements the PasswordEncoder interface from Spring Security.
  */
 public class CustomPasswordEncoder implements PasswordEncoder{
