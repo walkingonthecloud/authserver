@@ -1,5 +1,8 @@
 package com.pilogix.authserver.config;
 
+import com.pilogix.authserver.service.CustomAuthenticationManager;
+import com.pilogix.authserver.service.CustomPasswordEncoder;
+import com.pilogix.authserver.util.HashUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,20 +39,14 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
-
-    @Bean
-    @Override
-    public AuthenticationManager authenticationManagerBean() throws Exception {
-        return super.authenticationManagerBean();
+        return new CustomPasswordEncoder();
     }
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
 
         httpSecurity.csrf().disable()
-        .authorizeRequests().antMatchers("/getToken", "/register").permitAll().
+        .authorizeRequests().antMatchers("/api/getToken/**", "/api/register/**").permitAll().
         anyRequest().authenticated().and().
         exceptionHandling().authenticationEntryPoint(jwtAuthenticationEntryPoint).and().sessionManagement()
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS);

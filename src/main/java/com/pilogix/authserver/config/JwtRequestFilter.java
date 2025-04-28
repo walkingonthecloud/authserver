@@ -50,7 +50,8 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 raiseException(request, response, "Authentication error: Invalid token or token expired.");
             }
         } else {
-            raiseException(request, response, "Authentication error: Invalid token or invalid token format or token expired.");
+            if (!request.getRequestURL().toString().contains("getToken") && !request.getRequestURL().toString().contains("register") )
+                raiseException(request, response, "Authentication error: Invalid token or invalid token format or token expired.");
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

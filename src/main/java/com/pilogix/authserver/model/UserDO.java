@@ -1,8 +1,13 @@
 package com.pilogix.authserver.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class UserDO {
 
+    @JsonProperty("Username")
     private String username;
+
+    @JsonProperty("Password")
     private String password;
 
     public String getUsername() {

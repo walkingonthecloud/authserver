@@ -1,7 +1,7 @@
 package com.pilogix.authserver.service;
 
-import com.pilogix.authserver.model.UserEntity;
 import com.pilogix.authserver.model.UserDO;
+import com.pilogix.authserver.model.UserEntity;
 import com.pilogix.authserver.repo.UserRepo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;

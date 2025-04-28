@@ -4,6 +4,7 @@ import com.pilogix.authserver.config.JwtTokenUtil;
 import com.pilogix.authserver.model.JwtRequest;
 import com.pilogix.authserver.model.JwtResponse;
 import com.pilogix.authserver.model.UserDO;
+import com.pilogix.authserver.service.CustomAuthenticationManager;
 import com.pilogix.authserver.service.JwtUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -14,17 +15,18 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @CrossOrigin
-@RequestMapping(value = "/auth")
+@RequestMapping (value = "/api")
 @Slf4j
 public class JwtAuthenticationController {
 
     @Autowired
-    private AuthenticationManager authenticationManager;
+    private CustomAuthenticationManager authenticationManager;
 
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
@@ -38,13 +40,13 @@ public class JwtAuthenticationController {
     public ResponseEntity<JwtResponse> createAuthenticationToken(@RequestBody JwtRequest request) {
 
         log.info(">> createAuthenticationToken");
-        JwtResponse response = JwtResponse.builder().username(request.getUsername())
-                .token(request.getToken()).build();
+        String token = null;
+        JwtResponse response = new JwtResponse();
 
         try {
             authenticate(request.getUsername(), request.getPassword());
             final UserDetails userDetails = userDetailsService.loadUserByUsername(request.getUsername());
-            final String token = jwtTokenUtil.generateToken(userDetails);
+            token = jwtTokenUtil.generateToken(userDetails);
             response.setTokenValid(true);
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,6 +54,9 @@ public class JwtAuthenticationController {
             response.setErrorMessage("Error while performing getToken() in AUTHSERVER.");
             response.setTokenValid(false);
         }
+        response = JwtResponse.builder().username(request.getUsername())
+                .token(token).build();
+
         log.info("<< createAuthenticationToken");
         return ResponseEntity.ok(response);
     }
@@ -76,6 +81,12 @@ public class JwtAuthenticationController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping (value = "/sayHello", method = RequestMethod.GET)
+    public ResponseEntity<String> sayHello()
+    {
+        return ResponseEntity.ok("Hello from Auth Server");
+    }
+
     @RequestMapping(value = "/register", method = RequestMethod.POST)
     public ResponseEntity<?> saveUser(@RequestBody UserDO user) throws Exception {
         return ResponseEntity.ok(userDetailsService.save(user));
@@ -84,7 +95,8 @@ public class JwtAuthenticationController {
     private void authenticate(String username, String password) throws Exception {
 
         try {
-            authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
+            Authentication authentication = new UsernamePasswordAuthenticationToken(username, password);
+            authenticationManager.authenticate(authentication);
         } catch (DisabledException e) {
             throw new Exception("USER_DISABLED", e);
 
